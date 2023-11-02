@@ -35,6 +35,7 @@
             let dino_y = 0;
             let dino_speed = 1;
             let dino_run_img = img_dino_run1;
+            let run_interval = null;
 
             let up_pressed = false;
             let down_pressed = false;
@@ -117,8 +118,12 @@
                 if (prev_dino_x != dino_x || prev_dino_y != dino_y) {
                   is_moving = true;
                 }
+                let img_to_draw = img_dino_idle
+                if (is_moving) {
+                    run_interval = setInterval(run_anim, 100);
+                }
 
-                drawDino(img_dino_idle);
+                drawDino(img_to_draw);
             }
             
             function run_anim() {
