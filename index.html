@@ -1,0 +1,141 @@
+<html>
+    <head>
+        <style>
+            #canvas_game {
+                background-color: gainsboro;
+                display: block;
+                /* width: 100%; */
+                height: 95vh;
+                aspect-ratio: 16 / 9;
+                margin-left: auto;
+                margin-right: auto;
+                image-rendering: pixelated;
+                image-rendering: -moz-crisp-edges;
+                image-rendering: crisp-edges;
+                image-rendering: -o-pixelated;
+            }
+        </style>
+    </head>
+    <body id="body">
+        <img src="./graphics/pixel_dino_idle.png" id="img_dino_idle" hidden>
+        <img src="./graphics/pixel_dino_run1.png" id="img_dino_run1" hidden>
+        <img src="./graphics/pixel_dino_run2.png" id="img_dino_run2" hidden>
+        <canvas id ="canvas_game"></canvas>
+
+        
+        <script>
+            const canvas = document.getElementById("canvas_game");
+            const img_dino_idle = document.getElementById("img_dino_idle");
+            const img_dino_run1 = document.getElementById("img_dino_run1");
+            const img_dino_run2 = document.getElementById("img_dino_run2");
+            const dino_size_px = 20;
+            // img_dino_idle.src = "./pixel_dino_idle.png";
+            let ctx = canvas.getContext("2d");
+            let dino_x = 0;
+            let dino_y = 0;
+            let dino_speed = 1;
+            let dino_run_img = img_dino_run1;
+
+            let up_pressed = false;
+            let down_pressed = false;
+            let left_pressed = false;
+            let right_pressed = false;
+
+            document.addEventListener("keydown", keyDownHandler, false);
+            document.addEventListener("keyup", keyUpHandler, false);
+
+            function keyDownHandler(e){
+                if (e.key == "w" || e.key == "ArrowUp") {
+                    up_pressed = true;
+                }
+                if (e.key == "s" || e.key == "ArrowDown") {
+                    down_pressed = true;
+                }
+                if (e.key == "a" || e.key == "ArrowLeft") {
+                    left_pressed = true;
+                }
+                if (e.key == "d" || e.key == "ArrowRight") {
+                    right_pressed = true;
+                }
+            }
+            
+            function keyUpHandler(e){
+                if (e.key == "w" || e.key == "ArrowUp") {
+                    up_pressed = false;
+                }
+                if (e.key == "s" || e.key == "ArrowDown") {
+                    down_pressed = false;
+                }
+                if (e.key == "a" || e.key == "ArrowLeft") {
+                    left_pressed = false;
+                }
+                if (e.key == "d" || e.key == "ArrowRight") {
+                    right_pressed = false;
+                }
+            }
+
+            function drawDino (img_to_draw) {
+                ctx.drawImage(img_to_draw, dino_x, dino_y, dino_size_px, dino_size_px);
+            }
+
+            function draw () {
+                // Clear canvas elements to draw next frame
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Store dino's actual position to check if it changes during this draw step (frame)
+                let prev_dino_x = dino_x;
+                let prev_dino_y = dino_y;
+                
+                // Try to move the dino if it is possible
+                let move_factor = 1;
+                if ((left_pressed || right_pressed) && (up_pressed || down_pressed)) {
+                    move_factor = 0.75;
+                }
+                if (!(left_pressed && right_pressed)) {
+                    if (left_pressed && (dino_x - dino_speed >= 0)) {
+                        dino_x -= dino_speed * move_factor;
+                        //dino_x = Math.round(dino_x);
+                    }
+                    else if (right_pressed && (dino_x + dino_speed <= canvas.width - dino_size_px)) {
+                        dino_x += dino_speed * move_factor;
+                        //dino_x = Math.round(dino_x);
+                    }
+                }
+                if (!(up_pressed && down_pressed)) {
+                    if (up_pressed && (dino_y - dino_speed >= 0)) {
+                        dino_y -= dino_speed * move_factor;
+                        //dino_y = Math.round(dino_y);
+                    }
+                    else if (down_pressed && (dino_y + dino_speed <= canvas.height - dino_size_px)) {
+                        dino_y += dino_speed * move_factor;
+                        //dino_y = Math.round(dino_y);
+                    }
+                }
+                
+                // Check if dino moved to update sprite
+                let is_moving = false;
+                if (prev_dino_x != dino_x || prev_dino_y != dino_y) {
+                  is_moving = true;
+                }
+
+                drawDino(img_dino_idle);
+            }
+            
+            function run_anim() {
+              if (dino_run_img != img_dino_run1) {
+                dino_run_img = img_dino_run1
+              } else {
+                dino_run_img = img_dino_run2
+              }
+            }
+
+            document.getElementById("body").onload = function() {
+                setInterval(draw, 10);
+                
+            }
+
+            
+
+        </script>
+    </body>
+</html>
