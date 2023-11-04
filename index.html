@@ -28,17 +28,28 @@
         <img src="./graphics/pixel_dino_idle.png" id="img_dino_idle" hidden>
         <img src="./graphics/pixel_dino_run1.png" id="img_dino_run1" hidden>
         <img src="./graphics/pixel_dino_run2.png" id="img_dino_run2" hidden>
+        <img src="./graphics/pixel_dino_idle_flip.png" id="img_dino_idle_flip" hidden>
+        <img src="./graphics/pixel_dino_run1_flip.png" id="img_dino_run1_flip" hidden>
+        <img src="./graphics/pixel_dino_run2_flip.png" id="img_dino_run2_flip" hidden>
         <canvas id ="canvas_game"></canvas>
-
+        <p id="h_pos"></p>
+        <p id="v_pos"></p>
         
         <script>
             const canvas = document.getElementById("canvas_game");
-            const img_dino_idle = document.getElementById("img_dino_idle");
-            const img_dino_run1 = document.getElementById("img_dino_run1");
-            const img_dino_run2 = document.getElementById("img_dino_run2");
+            const img_dino_idle_no_flip = document.getElementById("img_dino_idle");
+            const img_dino_run1_no_flip = document.getElementById("img_dino_run1");
+            const img_dino_run2_no_flip = document.getElementById("img_dino_run2");
+            const img_dino_idle_flip = document.getElementById("img_dino_idle_flip");
+            const img_dino_run1_flip = document.getElementById("img_dino_run1_flip");
+            const img_dino_run2_flip = document.getElementById("img_dino_run2_flip");
             const dino_size_px = 20;
+            let img_dino_idle = img_dino_idle_no_flip;
+            let img_dino_run1 = img_dino_run1_no_flip;
+            let img_dino_run2 = img_dino_run2_no_flip;
             // img_dino_idle.src = "./pixel_dino_idle.png";
             let ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled = false;
             let dino_x = 0;
             let dino_y = 0;
             let dino_speed = 1;
@@ -85,6 +96,8 @@
 
             function drawDino (img_to_draw) {
                 ctx.drawImage(img_to_draw, dino_x, dino_y, dino_size_px, dino_size_px);
+                document.getElementById("h_pos").innerText = dino_x;
+                document.getElementById("v_pos").innerText = dino_y;
             }
 
             function draw () {
@@ -102,10 +115,12 @@
                 }
                 if (!(left_pressed && right_pressed)) {
                     if (left_pressed && (dino_x - dino_speed >= 0)) {
+                        dino_flipx(true);
                         dino_x -= dino_speed * move_factor;
                         //dino_x = Math.round(dino_x);
                     }
                     else if (right_pressed && (dino_x + dino_speed <= canvas.width - dino_size_px)) {
+                        dino_flipx(false);
                         dino_x += dino_speed * move_factor;
                         //dino_x = Math.round(dino_x);
                     }
@@ -145,6 +160,18 @@
               } else {
                 dino_run_img = img_dino_run2
               }
+            }
+
+            function dino_flipx(flip) {
+                if (flip) {
+                    img_dino_idle = img_dino_idle_flip;
+                    img_dino_run1 = img_dino_run1_flip;
+                    img_dino_run2 = img_dino_run2_flip;
+                } else {
+                    img_dino_idle = img_dino_idle_no_flip;
+                    img_dino_run1 = img_dino_run1_no_flip;
+                    img_dino_run2 = img_dino_run2_no_flip;
+                }
             }
 
             document.getElementById("body").onload = function() {
