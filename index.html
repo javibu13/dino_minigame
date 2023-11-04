@@ -2,17 +2,25 @@
     <head>
         <style>
             #canvas_game {
-                background-color: gainsboro;
-                display: block;
-                /* width: 100%; */
-                height: 95vh;
-                aspect-ratio: 16 / 9;
-                margin-left: auto;
-                margin-right: auto;
-                image-rendering: pixelated;
-                image-rendering: -moz-crisp-edges;
-                image-rendering: crisp-edges;
-                image-rendering: -o-pixelated;
+              background-color: gainsboro;
+              display: block;
+              /* width: 100%; */
+              height: 95vh;
+              aspect-ratio: 16 / 9;
+              margin-left: auto;
+              margin-right: auto;
+              image-rendering: pixelated;
+              image-rendering: -moz-crisp-edges;
+              image-rendering: crisp-edges;
+              image-rendering: -o-pixelated;
+            }
+            
+            img.flipx {
+              -moz-transform: scale(-1, 1);
+              -webkit-transform: scale(-1, 1);
+              -o-transform: scale(-1, 1);
+              transform: scale(-1, 1);
+              filter: FlipH;
             }
         </style>
     </head>
@@ -115,13 +123,18 @@
                 
                 // Check if dino moved to update sprite
                 let is_moving = false;
+                let img_to_draw = img_dino_idle
                 if (prev_dino_x != dino_x || prev_dino_y != dino_y) {
                   is_moving = true;
-                }
-                let img_to_draw = img_dino_idle
-                if (is_moving) {
-                    run_interval = setInterval(run_anim, 100);
-                }
+                  if (!run_interval) {
+                    run_interval = setInterval(run_anim, 90);
+                  }
+                  img_to_draw = dino_run_img;
+                } else if (run_interval) {
+                  clearInterval(run_interval);
+                  run_interval = null;
+                } 
+                
 
                 drawDino(img_to_draw);
             }
