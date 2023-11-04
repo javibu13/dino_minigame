@@ -32,6 +32,7 @@
         <img src="./graphics/pixel_dino_run1_flip.png" id="img_dino_run1_flip" hidden>
         <img src="./graphics/pixel_dino_run2_flip.png" id="img_dino_run2_flip" hidden>
         <canvas id ="canvas_game"></canvas>
+        <p id="debug_text"></p>
         <p id="h_pos"></p>
         <p id="v_pos"></p>
         
@@ -53,6 +54,11 @@
             let dino_x = 0;
             let dino_y = 0;
             let dino_speed = 1;
+            let dino_jump_height = 0;
+            // let dino_jump_max_height = 15;
+            const gravity = 0.1;
+            const dino_jump_force = 2;
+            let dino_jump_actual_force = 0;
             let dino_run_img = img_dino_run1;
             let run_interval = null;
 
@@ -60,6 +66,8 @@
             let down_pressed = false;
             let left_pressed = false;
             let right_pressed = false;
+            let jump_pressed = false;
+            let is_jumping = false;
 
             document.addEventListener("keydown", keyDownHandler, false);
             document.addEventListener("keyup", keyUpHandler, false);
@@ -77,6 +85,10 @@
                 if (e.key == "d" || e.key == "ArrowRight") {
                     right_pressed = true;
                 }
+                if (e.key == " ") {
+                    jump_pressed = true;
+                    e.preventDefault();
+                }
             }
             
             function keyUpHandler(e){
@@ -92,10 +104,13 @@
                 if (e.key == "d" || e.key == "ArrowRight") {
                     right_pressed = false;
                 }
+                if (e.key == "space") {
+                    jump_pressed = false;
+                }
             }
 
             function drawDino (img_to_draw) {
-                ctx.drawImage(img_to_draw, dino_x, dino_y, dino_size_px, dino_size_px);
+                ctx.drawImage(img_to_draw, dino_x, dino_y-dino_jump_height, dino_size_px, dino_size_px);
                 document.getElementById("h_pos").innerText = dino_x;
                 document.getElementById("v_pos").innerText = dino_y;
             }
@@ -150,8 +165,27 @@
                   run_interval = null;
                 } 
                 
+                // Calculate jump
+                if (jump_pressed || is_jumping) {
+                  if (!is_jumping) {
+                    is_jumping = true;
+                    jump_pressed = false;
+                    dino_jump_height = 0;
+                    dino_jump_actual_force = dino_jump_force;
+                  }
+                  calculate_jump();
+                }
 
                 drawDino(img_to_draw);
+            }
+            
+            function calculate_jump() {
+              dino_jump_height += dino_jump_actual_force;
+              dino_jump_actual_force -= gravity;
+              if (dino_jump_height < 0) {
+                is_jumping = false;
+                dino_jump_height = 0;
+              }
             }
             
             function run_anim() {
