@@ -31,6 +31,7 @@
         <img src="./graphics/pixel_dino_idle_flip.png" id="img_dino_idle_flip" hidden>
         <img src="./graphics/pixel_dino_run1_flip.png" id="img_dino_run1_flip" hidden>
         <img src="./graphics/pixel_dino_run2_flip.png" id="img_dino_run2_flip" hidden>
+        <img src="./graphics/pixel_dino_shadow.png" id="img_dino_shadow" hidden>
         <canvas id ="canvas_game"></canvas>
         <p id="debug_text"></p>
         <p id="h_pos"></p>
@@ -44,6 +45,7 @@
             const img_dino_idle_flip = document.getElementById("img_dino_idle_flip");
             const img_dino_run1_flip = document.getElementById("img_dino_run1_flip");
             const img_dino_run2_flip = document.getElementById("img_dino_run2_flip");
+            const img_dino_shadow = document.getElementById("img_dino_shadow");
             const dino_size_px = 20;
             let img_dino_idle = img_dino_idle_no_flip;
             let img_dino_run1 = img_dino_run1_no_flip;
@@ -110,6 +112,12 @@
             }
 
             function drawDino (img_to_draw) {
+                if (img_to_draw.id.endsWith("flip")) {
+                    ctx.drawImage(img_dino_shadow, dino_x+4, dino_y+13, 14, 14);
+                } else {
+                    ctx.drawImage(img_dino_shadow, dino_x+2, dino_y+13, 14, 14);
+                }
+                document.getElementById("debug_text").innerText = img_to_draw.id;
                 ctx.drawImage(img_to_draw, dino_x, dino_y-dino_jump_height, dino_size_px, dino_size_px);
                 document.getElementById("h_pos").innerText = dino_x;
                 document.getElementById("v_pos").innerText = dino_y;
