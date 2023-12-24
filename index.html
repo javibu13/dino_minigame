@@ -38,6 +38,35 @@
         <p id="v_pos"></p>
         
         <script>
+        
+            class EnemyBar {
+                
+                static align_options = ["h", "v"];
+                
+                constructor(align, thickness = 4, speed = 3) {
+                    if (align == "h" || align == "v") {
+                        this.align = align;
+                    } else {
+                        this.align_options = EnemyBar.align_options;
+                        let random_n = Math.floor(Math.random() * this.align_options.length);
+                        this.align = this.align_options[random_n];
+                        //console.log(this.align);
+                    }
+                    this.thickness = thickness;
+                    this.speed = speed;
+                    this.position = {
+                        x : 0,
+                        y : 0,
+                    };
+                    
+                }
+                
+            }
+            
+            const enemy_bars = [];
+            enemy_bars.push(new EnemyBar("h"));
+            //console.log(test_bar.align);
+        
             const canvas = document.getElementById("canvas_game");
             const img_dino_idle_no_flip = document.getElementById("img_dino_idle");
             const img_dino_run1_no_flip = document.getElementById("img_dino_run1");
@@ -122,6 +151,10 @@
                 document.getElementById("h_pos").innerText = dino_x;
                 document.getElementById("v_pos").innerText = dino_y;
             }
+            
+            function drawEnemyBars() {
+                
+            }
 
             function draw () {
                 // Clear canvas elements to draw next frame
@@ -185,6 +218,8 @@
                 }
 
                 drawDino(img_to_draw);
+                
+                drawEnemyBars();
             }
             
             function calculate_jump() {
