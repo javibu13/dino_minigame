@@ -43,7 +43,10 @@
                 
                 static align_options = ["h", "v"];
                 
-                constructor(align, thickness = 4, speed = 3) {
+                constructor(canvas, context, align, thickness = 4, speed = 2) {
+                    this.canvas = canvas;
+                    this.context = context;
+                    this.way = 1;
                     if (align == "h" || align == "v") {
                         this.align = align;
                     } else {
@@ -52,8 +55,12 @@
                         this.align = this.align_options[random_n];
                         //console.log(this.align);
                     }
+                    if (this.align == "v") {
+                        this.speed = speed / 2;
+                    } else {
+                        this.speed = speed;
+                    }
                     this.thickness = thickness;
-                    this.speed = speed;
                     this.position = {
                         x : 0,
                         y : 0,
@@ -62,18 +69,37 @@
                 }
 
                 draw() {
-
+                    this.context.fillStyle = "#646464";
+                    if (this.align == "h") {
+                        this.context.fillRect(this.position.x, 0, this.thickness, this.canvas.height);
+                    } else if (this.align == "v") {
+                        this.context.fillRect(0, this.position.y, this.canvas.width, this.thickness);
+                    }
                 }
 
                 move() {
+                    if (this.align == "h") {
+                        if (this.way == 1 && (this.position.x + this.speed) > this.canvas.width) {
+                            this.way = -1;
+                        } else if (this.way == -1 && (this.position.x - this.speed) < 0) {
+                            this.way = 1;
+                        }
+                        this.position.x += this.speed * this.way;
+                    } else if (this.align == "v") {
+                        if (this.way == 1 && (this.position.y + this.speed) > this.canvas.height) {
+                            this.way = -1;
+                        } else if (this.way == -1 && (this.position.y - this.speed) < 0) {
+                            this.way = 1;
+                        }
+                        this.position.y += this.speed * this.way;
+                    }
+                }
+                
+                checkCollision() {
                     
                 }
                 
             }
-            
-            const enemy_bars = [];
-            enemy_bars.push(new EnemyBar("h"));
-            //console.log(test_bar.align);
         
             const canvas = document.getElementById("canvas_game");
             const img_dino_idle_no_flip = document.getElementById("img_dino_idle");
@@ -108,6 +134,10 @@
             let jump_pressed = false;
             let is_jumping = false;
 
+            const enemy_bars = [];
+            enemy_bars.push(new EnemyBar(canvas, ctx, ""));
+            //console.log(test_bar.align);
+            
             document.addEventListener("keydown", keyDownHandler, false);
             document.addEventListener("keyup", keyUpHandler, false);
 
@@ -165,8 +195,30 @@
                     enemy_bar.draw();
                 });
             }
+            
+            function moveEnemyBars() {
+                enemy_bars.forEach(enemy_bar => {
+                    enemy_bar.move();
+                });
+            }
+            
+            function checkCollisionEnemyBars(position_x, position_y, width, height) {
+                let result = false;
+                enemy_bars.forEach(enemy_bar => {
+                    result = enemy_bar.checkCollision(position_x, position_y, width, height);
+                    if (result) {
+                        return false;
+                    }
+                });
+                if (result) {
+                    window.alert("GAME OVER");
+                }
+            }
 
             function draw () {
+                // Check collisions with enemy bars
+                checkCollisionEnemyBars(dino_x+4, dino_y+13, 14, 14);
+                
                 // Clear canvas elements to draw next frame
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
@@ -226,6 +278,8 @@
                   }
                   calculate_jump();
                 }
+                
+                moveEnemyBars();
 
                 drawDino(img_to_draw);
                 
