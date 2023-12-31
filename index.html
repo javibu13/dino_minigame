@@ -95,8 +95,22 @@
                     }
                 }
                 
-                checkCollision() {
-                    
+                checkCollision(position_x, position_y, width, height) {
+                    let isColliding = false;
+                    if (this.align == "h") {
+                        if (position_x < this.position.x && (position_x + width) > this.position.x) {
+                            isColliding = true;
+                        } else if (position_x >= this.position.x && position_x < (this.position.x + this.thickness)) {
+                            isColliding = true;
+                        }
+                    } else if (this.align == "v") {
+                        if (position_y < this.position.y && (position_y + height) > this.position.y) {
+                            isColliding = true;
+                        } else if (position_y >= this.position.y && position_y < (this.position.y + this.thickness)) {
+                            isColliding = true;
+                        }
+                    }
+                    return isColliding;
                 }
                 
             }
@@ -211,16 +225,22 @@
                     }
                 });
                 if (result) {
-                    window.alert("GAME OVER");
+                    console.log("GAME OVER");
+                    ctx.fillStyle = "red";
+                    ctx.fillRect(0, 0, 5, 5);
                 }
             }
 
             function draw () {
-                // Check collisions with enemy bars
-                checkCollisionEnemyBars(dino_x+4, dino_y+13, 14, 14);
-                
                 // Clear canvas elements to draw next frame
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // If dino is not jumping
+                if (!is_jumping) {
+                    // Check collisions with enemy bars
+                    checkCollisionEnemyBars(dino_x+4, dino_y+13, 14, 14);
+                    
+                }
                 
                 // Store dino's actual position to check if it changes during this draw step (frame)
                 let prev_dino_x = dino_x;
