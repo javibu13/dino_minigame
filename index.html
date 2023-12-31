@@ -148,9 +148,12 @@
             let jump_pressed = false;
             let is_jumping = false;
 
-            const enemy_bars = [];
+            let enemy_bars = [];
             enemy_bars.push(new EnemyBar(canvas, ctx, ""));
             //console.log(test_bar.align);
+            
+            let score = 0;
+            let max_score = 0;
             
             document.addEventListener("keydown", keyDownHandler, false);
             document.addEventListener("keyup", keyUpHandler, false);
@@ -191,6 +194,14 @@
                     jump_pressed = false;
                 }
             }
+            
+            function drawScore () {
+                ctx.font = "128px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#d6d6d6";
+                ctx.fillText(score, canvas.width/2, canvas.height/2);
+            }
 
             function drawDino (img_to_draw) {
                 if (img_to_draw.id.endsWith("flip")) {
@@ -226,7 +237,15 @@
                 });
                 if (result) {
                     console.log("GAME OVER");
+                    
+                    
+                    setMaxScore(score);
+                    score = 0;
+                    
+                    
                     ctx.fillStyle = "red";
+                    
+                    
                     ctx.fillRect(0, 0, 5, 5);
                 }
             }
@@ -234,6 +253,9 @@
             function draw () {
                 // Clear canvas elements to draw next frame
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw score
+                drawScore();
                 
                 // If dino is not jumping
                 if (!is_jumping) {
@@ -333,6 +355,13 @@
                     img_dino_run1 = img_dino_run1_no_flip;
                     img_dino_run2 = img_dino_run2_no_flip;
                 }
+                
+                
+            }
+            
+            function setMaxScore(new_score) {
+                // TODO: Store the new score in memory if is higher than the previously.
+                max_score = new_score;
             }
 
             document.getElementById("body").onload = function() {
