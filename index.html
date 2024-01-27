@@ -32,6 +32,7 @@
         <img src="./graphics/pixel_dino_run1_flip.png" id="img_dino_run1_flip" hidden>
         <img src="./graphics/pixel_dino_run2_flip.png" id="img_dino_run2_flip" hidden>
         <img src="./graphics/pixel_dino_shadow.png" id="img_dino_shadow" hidden>
+        <img src="./graphics/pixel_ray.png" id="img_ray" hidden>
         <canvas id ="canvas_game"></canvas>
         <p id="debug_text"></p>
         <p id="h_pos"></p>
@@ -114,6 +115,57 @@
                 }
                 
             }
+            
+            class PointItem {
+                
+                // TODO: Point item disapears after a short time if it is not collected in time
+                // TODO; Add shadow to sprite (reuse dino's shadow)
+                
+                constructor(canvas, context) {
+                    this.sprite_img = document.getElementById("img_ray");
+                    
+                    this.canvas = canvas;
+                    this.context = context;
+                    
+                    this.size = {
+                        x : 12,
+                        y : 15,
+                    };
+                    
+                    this.position = {
+                        x : Math.floor(Math.random() * this.canvas.width),
+                        y : Math.floor(Math.random() * this.canvas.height),
+                    };
+                    
+                    if ((this.position.x + this.size.x) > this.canvas.width) {
+                        this.position.x = this.canvas.width - this.size.x;
+                    }
+                    
+                    if ((this.position.y + this.size.y) > this.canvas.height) {
+                        this.position.y = this.canvas.height - this.size.y;
+                    }
+                    
+                }
+
+                draw() {
+                    // this.context.fillStyle = "#646464";
+                    // ctx.drawImage(img_dino_shadow, dino_x+4, dino_y+13.1, 14, 14);
+                    
+                    ctx.drawImage(this.sprite_img, this.position.x, this.position.y, this.size.x, this.size.y);
+                }
+                
+                checkCollision(position_x, position_y, width, height) {
+                    let isColliding = false;
+                    
+                    if (((position_x < this.position.x && (position_x + width) > this.position.x) || (position_x > this.position.x && (position_x < (this.position.x + this.size.x))))
+                        &&
+                        ((position_y < this.position.y && (position_y + height) > this.position.y) || (position_y > this.position.y && (position_y < (this.position.y + this.size.y))))) {
+                        isColliding = true;
+                    }
+                    return isColliding;
+                }
+                
+            }
         
             const canvas = document.getElementById("canvas_game");
             const img_dino_idle_no_flip = document.getElementById("img_dino_idle");
@@ -130,8 +182,8 @@
             // img_dino_idle.src = "./pixel_dino_idle.png";
             let ctx = canvas.getContext("2d");
             ctx.imageSmoothingEnabled = false;
-            let dino_x = 0;
-            let dino_y = 0;
+            let dino_x = canvas.width/2;
+            let dino_y = canvas.height/2;
             let dino_speed = 1;
             let dino_jump_height = 0;
             // let dino_jump_max_height = 15;
@@ -151,6 +203,12 @@
             let enemy_bars = [];
             enemy_bars.push(new EnemyBar(canvas, ctx, ""));
             //console.log(test_bar.align);
+            
+            let point_items = [];
+            let spawn_point_item_interval = {
+                min : 1000,
+                max : 3500,
+            }
             
             let score = 0;
             let max_score = 0;
@@ -221,6 +279,12 @@
                 });
             }
             
+            function drawPointItems() {
+                point_items.forEach(point_item => {
+                    point_item.draw();
+                });
+            }
+            
             function moveEnemyBars() {
                 enemy_bars.forEach(enemy_bar => {
                     enemy_bar.move();
@@ -249,6 +313,37 @@
                     ctx.fillRect(0, 0, 5, 5);
                 }
             }
+            
+            function checkCollisionPointItems(position_x, position_y, width, height) {
+                let result = false;
+                point_items.forEach(point_item => {
+                    result = point_item.checkCollision(position_x, position_y, width, height);
+                    if (result) {
+                        console.log("POINT!!");
+                        
+                        
+                        score += 1;
+                        if (score > max_score) {
+                            setMaxScore(score);
+                        }
+                        
+                        point_items.splice(point_items.indexOf(point_item), 1);
+                        
+                        // TODO: Delete debug info
+                        ctx.fillStyle = "green";
+                        ctx.fillRect(0, 5, 5, 5);
+                    }
+                        
+                });
+            }
+            
+            function spawnPointItem() {
+                point_items.push(new PointItem(canvas, ctx));
+                if (true) { // TODO: Set game over condition
+                    let random_spawn_time = Math.floor(Math.random() * (spawn_point_item_interval.max - spawn_point_item_interval.min)) + spawn_point_item_interval.min;
+                    setTimeout(spawnPointItem, random_spawn_time);
+                }
+            }
 
             function draw () {
                 // Clear canvas elements to draw next frame
@@ -261,7 +356,7 @@
                 if (!is_jumping) {
                     // Check collisions with enemy bars
                     checkCollisionEnemyBars(dino_x+4, dino_y+13, 14, 14);
-                    
+                    checkCollisionPointItems(dino_x+4, dino_y+13, 14, 14);
                 }
                 
                 // Store dino's actual position to check if it changes during this draw step (frame)
@@ -324,7 +419,7 @@
                 moveEnemyBars();
 
                 drawDino(img_to_draw);
-                
+                drawPointItems();
                 drawEnemyBars();
             }
             
@@ -366,7 +461,7 @@
 
             document.getElementById("body").onload = function() {
                 setInterval(draw, 10);
-                
+                setTimeout(spawnPointItem, 3000);
             }
 
             
